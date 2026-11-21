@@ -1,7 +1,11 @@
 import express from 'express';
+
 import {
   getBooksHandler,
-  getBookByIdHandler
+  getBookByIdHandler,
+  createBookHandler,
+  updateBookHandler,
+  deleteBookHandler,
 } from './controllers/books.js';
 import {
   getAllAuthors,
@@ -51,6 +55,130 @@ router.get('/books', getBooksHandler);
  *         description: Unable to retrieve book
  */
 router.get('/books/:id', getBookByIdHandler);
+
+/**
+ * @openapi
+ * /books:
+ *   post:
+ *     summary: Create a new book
+ *     tags:
+ *       - Books
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - authorId
+ *               - title
+ *               - publicationDate
+ *             additionalProperties: false
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 pattern: '^[A-Za-z0-9_-]{1,40}$'
+ *               authorId:
+ *                 type: string
+ *                 pattern: '^[A-Za-z0-9_-]{1,40}$'
+ *               title:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 200
+ *               publicationDate:
+ *                 type: string
+ *                 format: date
+ *           example:
+ *             id: b50
+ *             authorId: a7
+ *             title: Example Book
+ *             publicationDate: '2026-01-15'
+ *     responses:
+ *       201:
+ *         description: Book created successfully
+ *       400:
+ *         description: Invalid book data, duplicate ID, or invalid author reference
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/books', createBookHandler);
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   put:
+ *     summary: Update an existing book
+ *     tags:
+ *       - Books
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom book ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - authorId
+ *               - title
+ *               - publicationDate
+ *             additionalProperties: false
+ *             properties:
+ *               authorId:
+ *                 type: string
+ *                 pattern: '^[A-Za-z0-9_-]{1,40}$'
+ *               title:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 200
+ *               publicationDate:
+ *                 type: string
+ *                 format: date
+ *           example:
+ *             authorId: a6
+ *             title: Updated Example Book
+ *             publicationDate: '2026-02-20'
+ *     responses:
+ *       200:
+ *         description: Book updated successfully
+ *       400:
+ *         description: Invalid book data or invalid author reference
+ *       404:
+ *         description: Book not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/books/:id', updateBookHandler);
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   delete:
+ *     summary: Delete an existing book
+ *     tags:
+ *       - Books
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom book ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Book deleted successfully (no response body)
+ *       404:
+ *         description: Book not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/books/:id', deleteBookHandler);
 
 /**
  * @openapi
